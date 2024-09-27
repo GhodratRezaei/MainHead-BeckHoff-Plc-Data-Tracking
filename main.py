@@ -1,6 +1,5 @@
 import pyads
 from pyads import PLCTYPE_BOOL, PLCTYPE_INT, PLCTYPE_DINT, PLCTYPE_REAL, PLCTYPE_STRING, PLCTYPE_DWORD
-import struct
 import json
 import influxdb_client 
 from influxdb_client import Point

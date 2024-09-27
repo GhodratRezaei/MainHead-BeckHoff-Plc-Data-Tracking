@@ -1,0 +1,66 @@
+### Complete Integrated Software Developement.
+# Execution in the terminal:
+# docker compose up -d
+
+# version: '3'      # Docker Compose version v2.27.0 is used, and the format of the docker-compose.yml should compatiblw with that.
+
+
+# Defining the docker compose network architecture
+networks:
+  influxdb-network:
+
+services:
+
+  # First Container: for time synchronization between the host (Lucchini Plant VM) and the client (esp32 Microcontroller)
+  ntp:
+    build: .
+    image: cturra/ntp:latest 
+    container_name: ntp
+    ports:
+      - "123:123/udp"
+    environment:
+      - NTP_SERVERS=1.europe.pool.ntp.org
+      - LOG_LEVEL=0
+    networks:
+      - influxdb-network
+
+  # Second Container: To run the influxdb local server in the Lucchini Plant VM..
+  influxdb:
+    container_name: influxdb
+    image: influxdb:latest
+    ports:
+      - "8086:8086"
+    volumes:
+      - ./var/lib/influxdb2:/var/lib/influxdb2
+      - ./etc/influxdb2:/etc/influxdb2
+    privileged: true
+    networks:
+      - influxdb-network
+    depends_on:
+      - ntp
+
+  # Third Container: To acquire data from the plc and send them to the influxdb local server.
+  plcRead:
+    container_name: plcRead
+    image: ghodrat1234/plc-read:1.1
+
+    # environment:
+    #   ADMIN_USERNAME: "ghodrat1234"
+    #   ADMIN_PASSWORD: "k_2;wM_K.893u$&"
+    #   ADMIN_EMAIL: "ghodratrezaei1996@gmail.com"
+
+    depends_on:
+      - influxdb
+      - ntp
+    networks:
+      - influxdb-network
+
+
+  # Fourth Container: To create Dashbaord and visualize data mounted to the influxdb server.    ..
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:latest
+    ports:
+      - 3000:3000
+    networks:
+      - influxdb-network
