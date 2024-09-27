@@ -173,11 +173,11 @@ bms_structure_defin = (
 
 
 # WSG: output as dictionary
-wsg_devices_names = ["WSG20", "WSG22", "WSG24", "WSG26", "WSG28"]
-bms_devices_names = ["BMS20", "BMS22", "BMS24", "BMS26", "BMS28"]
+# wsg_devices_names = ["WSG20", "WSG22", "WSG24", "WSG26", "WSG28"]
+# bms_devices_names = ["BMS20", "BMS22", "BMS24", "BMS26", "BMS28"]
 
-# wsg_devices_names = ["WSG20"]
-# bms_devices_names = ["BMS20"]
+wsg_devices_names = ["WSG20"]
+bms_devices_names = ["BMS20"]
 
 points = []
 
@@ -187,51 +187,18 @@ async def plc_read(plc_read_period):
     while True:
         start_time = time.time()
 
+	    # WSG 
         wsg_devices_list = []
         for wsg_device_name in wsg_devices_names:
             # device_address = "IoT_MAIN." + wsg_device_name + ".stWsgInfluxdb"
             structure_data_wsg_dict = plc.read_structure_by_name("IoT_MAIN." + wsg_device_name + ".stWsgInfluxdb", wsg_structure_defin)
             wsg_devices_list.append((wsg_device_name, list(structure_data_wsg_dict.items())))    
-            
+        # BMS  
         bms_devices_list = []
         for bms_device_name in bms_devices_names:
             structure_data_bms_dict = plc.read_structure_by_name("IoT_MAIN." + bms_device_name + ".stBmsInfluxdb", bms_structure_defin)
             bms_devices_list.append((bms_device_name, list(structure_data_bms_dict.items()))) 
             
-        # print(wsg_devices_list)
-        # print(bms_devices_list)
-
-
-
-		# # WSG : output as dictionary
-        # structure_data_wsg20_dict = plc.read_structure_by_name("IoT_MAIN.WSG20.stWsgInfluxdb", wsg_structure_defin)
-        # structure_data_wsg22_dict = plc.read_structure_by_name("IoT_MAIN.WSG22.stWsgInfluxdb", wsg_structure_defin)
-        # structure_data_wsg24_dict = plc.read_structure_by_name("IoT_MAIN.WSG24.stWsgInfluxdb", wsg_structure_defin)
-        # structure_data_wsg26_dict = plc.read_structure_by_name("IoT_MAIN.WSG26.stWsgInfluxdb", wsg_structure_defin)
-        # structure_data_wsg28_dict = plc.read_structure_by_name("IoT_MAIN.WSG28.stWsgInfluxdb", wsg_structure_defin)
-
-        # # BMS : output as dictionary
-        # structure_data_bms20_dict = plc.read_structure_by_name("IoT_MAIN.BMS20.stBmsInfluxdb", bms_structure_defin)
-        # structure_data_bms22_dict = plc.read_structure_by_name("IoT_MAIN.BMS22.stBmsInfluxdb", bms_structure_defin)
-        # structure_data_bms24_dict = plc.read_structure_by_name("IoT_MAIN.BMS24.stBmsInfluxdb", bms_structure_defin)
-        # structure_data_bms26_dict = plc.read_structure_by_name("IoT_MAIN.BMS26.stBmsInfluxdb", bms_structure_defin)
-        # structure_data_bms28_dict = plc.read_structure_by_name("IoT_MAIN.BMS28.stBmsInfluxdb", bms_structure_defin)
-
-        # wsg20_list = list(structure_data_wsg20_dict.items())
-        # wsg22_list = list(structure_data_wsg22_dict.items())
-        # wsg24_list = list(structure_data_wsg24_dict.items())
-        # wsg26_list = list(structure_data_wsg26_dict.items())
-        # wsg28_list = list(structure_data_wsg28_dict.items())
-        # wsg_list = wsg20_list + wsg22_list + wsg24_list + wsg26_list + wsg28_list 
-        
-        # bms20_list = list(structure_data_bms20_dict.items())
-        # bms22_list = list(structure_data_bms22_dict.items())
-        # bms24_list = list(structure_data_bms24_dict.items())
-        # bms26_list = list(structure_data_bms26_dict.items())
-        # bms28_list = list(structure_data_bms28_dict.items())
-        # bms_list = bms20_list + bms22_list + bms24_list + bms26_list + bms28_list 
-            
-
         timestamp_ns = int(time.time() * 1e9) % 9223372036854775806
 
 
@@ -298,7 +265,6 @@ async def write_local_influxdb(influxdb_write_period):
 
 async def main(plc_read_period, influxdb_write_period, enable_gzip_option):
     global write_local_api, influx_bucket, plc, props, influx_organization
-    
     
     # Reading the set.json file 
     try:
