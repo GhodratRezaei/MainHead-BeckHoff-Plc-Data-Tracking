@@ -1,6 +1,6 @@
 {
     "plc": {
-        "amsNetID": "192.168.92.62.1.1"
+        "amsNetID": "192.168.92.12.1.1"
     }, 
     "influx": {
         "token": "ZLCi4SAFWnNinAy3keNE2XihDes-nkY4TvKzf677UrRok1mj11geyIDm3r00cvHQEQ2tFrL4CL6La2brOJSTPQ==",
