@@ -177,7 +177,7 @@ bms_structure_defin = (
 
 wsg_devices_names = ["WSG20"]
 bms_devices_names = ["BMS20"]
-
+#
 points = []
 
 async def plc_read(plc_read_period):
