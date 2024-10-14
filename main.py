@@ -201,7 +201,7 @@ async def plc_read(plc_read_period):
         timestamp_ns = int(time.time() * 1e9) % 9223372036854775806
 
 
-		# WSG 
+		# WSG #
         for wsg_device in wsg_devices_list:
             wsg_device_name = str(wsg_device[0])
             for tuple in wsg_device[1]:
