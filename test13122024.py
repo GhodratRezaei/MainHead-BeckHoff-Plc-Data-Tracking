@@ -57,8 +57,8 @@ ST_CellData_Array = ST_CellData * 30
 # Read Function
 def plc_read():
 
-	config1 = configparser.ConfigParser()
-	config2 = configparser.ConfigParser()
+	position_conf = configparser.ConfigParser()
+	localCell_conf = configparser.ConfigParser()
 
     
 	try: 
@@ -81,57 +81,55 @@ def plc_read():
 			start_time = time.time()
 
 			# Checking Triggers Status
-			read_trigger_data1 = plc.read_by_name("PlcMain.fbSystemRoot.fbWsgWorkShop.bMoveAxis")
-			read_trigger_data2= plc.read_by_name("PlcMain.fbSystemRoot.fbWsgWorkShop.bWriteNewCellValues")    
+			read_position = plc.read_by_name("PlcMain.fbSystemRoot.fbWsgWorkShop.bMoveAxis")
+			read_localCell= plc.read_by_name("PlcMain.fbSystemRoot.fbWsgWorkShop.bWriteNewCellValues")    
 			write_store_trigger = None
-			print("read Trigger data1: ", read_trigger_data1)
-			print("read Trigger data2: ", read_trigger_data2)
+			print("read Trigger Position: ", read_position)
+			print("read Trigger LocalCell: ", read_localCell)
 
 
-
-
-			# Storing Data 1
-			if read_trigger_data1 != True:
+			# Storing position data
+			if read_position != True:
 				# reading to-be-saved-data
-				dict_data1 = plc.read_structure_by_name("PlcMain.fbSystemRoot.fbWsgWorkShop.stWsg", str_1)  
+				position_data_dict = plc.read_structure_by_name("PlcMain.fbSystemRoot.fbWsgWorkShop.stWsg", str_1)  
 				# Add sections and key-value pairs
-				config1['Actual Positions (Left and Right)'] = dict_data1
+				position_conf['Actual Positions (Left and Right)'] = position_data_dict
 				# Write the configuration to a file
-				with open('data1.ini', 'w') as configfile:
-					config1.write(configfile)
+				with open('position_data.ini', 'w') as configfile:
+					position_conf.write(configfile)
 
-			# Storing Data 2
-			if read_trigger_data2 != True:
+			# Storing local cell data
+			if read_localCell != True:
 				# Reading the index of array to be read
 				index_cell = plc.read_by_name("PlcMain.fbSystemRoot.fbWsgWorkShop.stMemoryData.nCellDataIndex",  pyads.PLCTYPE_INT)
 				print("INDEX CELL: ", index_cell)
 
 				# Read cell data array:  ARRAY_1..30_OF-ST_CellData
-				cell_data_array = plc.read_by_name("PlcMain.fbSystemRoot.fbWsgWorkShop.stCellData", ST_CellData_Array)
-				print("Lenght:  ", len(cell_data_array))
+				cell_lists = plc.read_by_name("PlcMain.fbSystemRoot.fbWsgWorkShop.stCellData", ST_CellData_Array)
+				print("Lenght:  ", len(cell_lists))
 
 				# Access and print each cell's data
-				for i, cell_data in enumerate(cell_data_array):
+				for i, cell_data in enumerate(cell_lists):
 					print(f"Cell {i+1}:")
 					print(f"  Right Cell Rated Output: {cell_data.fRightCellRatedOutput}")
 					print(f"  Right Cell Zero Balance: {cell_data.fRightCellZeroBalance}")
 					print(f"  Left Cell Rated Output: {cell_data.fLeftCellRatedOutput}")
 					print(f"  Left Cell Zero Balance: {cell_data.fLeftCellZeroBalance}")
 
-				dict_data2 =  { "fRightCellRatedOutput": cell_data_array[index_cell - 1].fRightCellRatedOutput ,
-								"fRightCellZeroBalance": cell_data_array[index_cell - 1].fRightCellZeroBalance,
-								"fLeftCellRatedOutput": cell_data_array[index_cell - 1].fLeftCellRatedOutput,
-								"fLeftCellZeroBalance": cell_data_array[index_cell - 1].fLeftCellZeroBalance
+				localCell_data_dict =  { "fRightCellRatedOutput": cell_lists[index_cell - 1].fRightCellRatedOutput ,
+								"fRightCellZeroBalance": cell_lists[index_cell - 1].fRightCellZeroBalance,
+								"fLeftCellRatedOutput": cell_lists[index_cell - 1].fLeftCellRatedOutput,
+								"fLeftCellZeroBalance": cell_lists[index_cell - 1].fLeftCellZeroBalance
 								}
-				print(dict_data2)
+				print(localCell_data_dict)
 				
 				
 				# Add sections and key-value pairs
-				config2['Load Cell Index'] = {"Index": index_cell}
-				config2['Load Cell Data'] = dict_data2
+				localCell_conf['Load Cell Index'] = {"Index": index_cell}
+				localCell_conf['Load Cell Data'] = localCell_data_dict
 				# Write the configuration to a file
-				with open('data2.ini', 'w') as configfile:
-					config2.write(configfile)
+				with open('loadCell_data.ini', 'w') as configfile:
+					localCell_conf.write(configfile)
 
 
 			# Writting Data
@@ -184,10 +182,10 @@ if __name__ == "__main__":
 
 #     # Read the array from the PLC
 #     array_name = "MAIN.stCellData"  # Replace with the actual variable path in your PLC
-#     cell_data_array = plc.read_by_name(array_name, ST_CellData_Array)
+#     cell_lists = plc.read_by_name(array_name, ST_CellData_Array)
 
 #     # Access and print each cell's data
-#     for i, cell_data in enumerate(cell_data_array):
+#     for i, cell_data in enumerate(cell_lists):
 #         print(f"Cell {i+1}:")
 #         print(f"  Right Cell Rated Output: {cell_data.fRightCellRatedOutput}")
 #         print(f"  Right Cell Zero Balance: {cell_data.fRightCellZeroBalance}")
